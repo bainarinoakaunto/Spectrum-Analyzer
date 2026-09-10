@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Spectrum Analyzer</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    width:100vw;
+    height:100vh;
+    overflow:hidden;
+    background:#070b12;
+    color:#e8f0fa;
+    font-family:"Segoe UI","Noto Sans JP",sans-serif;
+}
+
+.app{
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+}
+
+header{
+    height:68px;
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 22px;
+    background:#0b111b;
+    border-bottom:1px solid #1d2a3a;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.logo-icon{
+    width:38px;
+    height:38px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg,#00e5ff,#008cff);
+    color:#00141c;
+    font-size:20px;
+    font-weight:900;
+}
+
+.logo-text{
+    font-size:17px;
+    font-weight:800;
+    letter-spacing:2px;
+}
+
+.status{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:#8293a8;
+    font-size:13px;
+}
+
+.status-dot{
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    background:#566577;
+}
+
+.status-dot.active{
+    background:#39ff88;
+    box-shadow:0 0 12px #39ff88;
+}
+
+main{
+    flex:1;
+    min-height:0;
+    display:flex;
+    gap:18px;
+    padding:18px;
+}
+
+.visualizer{
+    flex:1;
+    min-width:0;
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+    background:#0d131d;
+    border:1px solid #1d2a3a;
+    border-radius:18px;
+    overflow:hidden;
+}
+
+.title{
+    height:52px;
+    flex-shrink:0;
+    padding:0 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom:1px solid #1d2a3a;
+}
+
+.title h2{
+    font-size:13px;
+    letter-spacing:1px;
+}
+
+.title span{
+    color:#65778d;
+    font-size:11px;
+}
+
+.canvas-area{
+    flex:1;
+    min-height:0;
+    position:relative;
+}
+
+canvas{
+    width:100%;
+    height:100%;
+    display:block;
+}
+
+.side{
+    width:285px;
+    flex-shrink:0;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+}
+
+.card{
+    background:#0d131d;
+    border:1px solid #1d2a3a;
+    border-radius:18px;
+    padding:18px;
+}
+
+.card h3{
+    margin-bottom:15px;
+    color:#8293a8;
+    font-size:11px;
+    letter-spacing:1px;
+}
+
+.level-box{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.level-scale{
+    width:20px;
+    height:145px;
+    position:relative;
+    overflow:hidden;
+    border:1px solid #26374c;
+    border-radius:10px;
+    background:#080d14;
+}
+
+.level-fill{
+    position:absolute;
+    left:0;
+    bottom:0;
+    width:100%;
+    height:0%;
+    background:linear-gradient(
+        to top,
+        #19e68c,
+        #19e68c 60%,
+        #ffd447 78%,
+        #ff5277
+    );
+}
+
+.level-number{
+    font-size:34px;
+    font-weight:800;
+}
+
+.level-unit{
+    color:#71839a;
+    font-size:12px;
+}
+
+.level-label{
+    margin-top:12px;
+    color:#71839a;
+    font-size:10px;
+}
+
+.controls{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+button{
+    width:100%;
+    padding:13px;
+    border:0;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:700;
+    transition:.15s;
+}
+
+button:hover{
+    transform:translateY(-1px);
+}
+
+button:disabled{
+    opacity:.4;
+    cursor:not-allowed;
+    transform:none;
+}
+
+.primary{
+    background:linear-gradient(135deg,#00e5ff,#008cff);
+    color:#00141c;
+}
+
+.secondary{
+    background:#182333;
+    border:1px solid #26374c;
+    color:white;
+}
+
+.stop{
+    background:#24121a;
+    border:1px solid #653044;
+    color:#ff7694;
+}
+
+.info{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.info-row{
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+}
+
+.info-row span:first-child{
+    color:#71839a;
+}
+
+.info-row span:last-child{
+    font-family:monospace;
+}
+
+footer{
+    height:30px;
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#4f6075;
+    font-size:10px;
+}
+
+@media(max-width:800px){
+    body{
+        overflow:auto;
+    }
+
+    main{
+        flex-direction:column;
+    }
+
+    .side{
+        width:100%;
+    }
+
+    .visualizer{
+        min-height:55vh;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<header>
+    <div class="logo">
+        <div class="logo-icon">〽</div>
+        <div class="logo-text">SPECTRUM ANALYZER</div>
+    </div>
+
+    <div class="status">
+        <div id="statusDot" class="status-dot"></div>
+        <span id="statusText">停止中</span>
+    </div>
+</header>
+
+<main>
+
+<section class="visualizer">
+
+    <div class="title">
+        <h2>REALTIME FREQUENCY</h2>
+        <span id="fps">-- FPS</span>
+    </div>
+
+    <div class="canvas-area">
+        <canvas id="spectrum"></canvas>
+    </div>
+
+</section>
+
+<aside class="side">
+
+<div class="card">
+
+    <h3>AUDIO LEVEL</h3>
+
+    <div class="level-box">
+
+        <div class="level-scale">
+            <div id="levelFill" class="level-fill"></div>
+        </div>
+
+        <div>
+            <div id="levelNumber" class="level-number">-∞</div>
+            <div class="level-unit">dB</div>
+            <div class="level-label">INPUT LEVEL</div>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="card">
+
+    <h3>CONTROL</h3>
+
+    <div class="controls">
+
+        <button id="startBtn" class="primary">
+            🎙 マイクを開始
+        </button>
+
+        <button id="pauseBtn" class="secondary" disabled>
+            ⏸ 一時停止
+        </button>
+
+        <button id="stopBtn" class="stop" disabled>
+            ■ 停止
+        </button>
+
+    </div>
+
+</div>
+
+<div class="card">
+
+    <h3>AUDIO INFO</h3>
+
+    <div class="info">
+
+        <div class="info-row">
+            <span>Sample Rate</span>
+            <span id="sampleRate">--</span>
+        </div>
+
+        <div class="info-row">
+            <span>FFT Size</span>
+            <span>4096</span>
+        </div>
+
+        <div class="info-row">
+            <span>Frequency</span>
+            <span>20Hz - 20kHz</span>
+        </div>
+
+        <div class="info-row">
+            <span>Source</span>
+            <span>Microphone</span>
+        </div>
+
+    </div>
+
+</div>
+
+</aside>
+
+</main>
+
+<footer>
+    Spectrum Analyzer • Web Audio API
+</footer>
+
+</div>
+
+<script>
+
+const canvas =
+    document.getElementById("spectrum");
+
+const ctx =
+    canvas.getContext("2d");
+
+const startBtn =
+    document.getElementById("startBtn");
+
+const pauseBtn =
+    document.getElementById("pauseBtn");
+
+const stopBtn =
+    document.getElementById("stopBtn");
+
+const statusDot =
+    document.getElementById("statusDot");
+
+const statusText =
+    document.getElementById("statusText");
+
+const levelFill =
+    document.getElementById("levelFill");
+
+const levelNumber =
+    document.getElementById("levelNumber");
+
+const sampleRate =
+    document.getElementById("sampleRate");
+
+const fps =
+    document.getElementById("fps");
+
+let audioContext = null;
+let analyser = null;
+let microphone = null;
+let stream = null;
+
+let animationId = null;
+let paused = false;
+
+let frameCount = 0;
+let fpsTime = performance.now();
+
+function resizeCanvas(){
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+    const dpr =
+        window.devicePixelRatio || 1;
+
+    canvas.width =
+        rect.width * dpr;
+
+    canvas.height =
+        rect.height * dpr;
+
+    ctx.setTransform(
+        dpr,0,0,dpr,0,0
+    );
+}
+
+window.addEventListener(
+    "resize",
+    resizeCanvas
+);
+
+resizeCanvas();
+
+async function startMicrophone(){
+
+    try{
+
+        if(
+            !navigator.mediaDevices ||
+            !navigator.mediaDevices.getUserMedia
+        ){
+            alert(
+                "このブラウザではマイク機能を使用できません。"
+            );
+            return;
+        }
+
+        stream =
+            await navigator.mediaDevices.getUserMedia({
+                audio:{
+                    echoCancellation:false,
+                    noiseSuppression:false,
+                    autoGainControl:false
+                }
+            });
+
+        audioContext =
+            new (
+                window.AudioContext ||
+                window.webkitAudioContext
+            )();
+
+        microphone =
+            audioContext.createMediaStreamSource(
+                stream
+            );
+
+        analyser =
+            audioContext.createAnalyser();
+
+        analyser.fftSize = 4096;
+        analyser.smoothingTimeConstant = 0.72;
+
+        microphone.connect(analyser);
+
+        sampleRate.textContent =
+            audioContext.sampleRate + " Hz";
+
+        statusDot.classList.add("active");
+        statusText.textContent = "録音中";
+
+        startBtn.disabled = true;
+        pauseBtn.disabled = false;
+        stopBtn.disabled = false;
+
+        paused = false;
+
+        draw();
+
+    }catch(error){
+
+        console.error(error);
+
+        alert(
+            "マイクへのアクセスが許可されませんでした。"
+        );
+    }
+}
+
+function stopMicrophone(){
+
+    if(animationId){
+        cancelAnimationFrame(animationId);
+        animationId = null;
+    }
+
+    if(stream){
+
+        stream.getTracks().forEach(
+            track => track.stop()
+        );
+
+        stream = null;
+    }
+
+    if(audioContext){
+
+        audioContext.close();
+        audioContext = null;
+    }
+
+    analyser = null;
+    microphone = null;
+
+    paused = false;
+
+    statusDot.classList.remove("active");
+    statusText.textContent = "停止中";
+
+    startBtn.disabled = false;
+    pauseBtn.disabled = true;
+    stopBtn.disabled = true;
+
+    pauseBtn.textContent = "⏸ 一時停止";
+
+    levelFill.style.height = "0%";
+    levelNumber.textContent = "-∞";
+
+    clearCanvas();
+}
+
+function togglePause(){
+
+    if(!analyser) return;
+
+    paused = !paused;
+
+    if(paused){
+
+        pauseBtn.textContent = "▶ 再開";
+        statusText.textContent = "一時停止";
+
+    }else{
+
+        pauseBtn.textContent = "⏸ 一時停止";
+        statusText.textContent = "録音中";
+
+        draw();
+    }
+}
+
+function draw(){
+
+    if(!analyser || paused) return;
+
+    animationId =
+        requestAnimationFrame(draw);
+
+    const width =
+        canvas.clientWidth;
+
+    const height =
+        canvas.clientHeight;
+
+    const bufferLength =
+        analyser.frequencyBinCount;
+
+    const data =
+        new Uint8Array(bufferLength);
+
+    analyser.getByteFrequencyData(data);
+
+    ctx.clearRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+    drawGrid(width,height);
+
+    drawSpectrum(
+        data,
+        bufferLength,
+        width,
+        height
+    );
+
+    updateLevel(data);
+
+    updateFPS();
+}
+
+function drawGrid(width,height){
+
+    ctx.save();
+
+    ctx.strokeStyle =
+        "rgba(255,255,255,.06)";
+
+    ctx.lineWidth = 1;
+
+    for(let i=1;i<6;i++){
+
+        const y =
+            height -
+            height / 6 * i;
+
+        ctx.beginPath();
+        ctx.moveTo(0,y);
+        ctx.lineTo(width,y);
+        ctx.stroke();
+    }
+
+    for(let i=1;i<8;i++){
+
+        const x =
+            width / 8 * i;
+
+        ctx.beginPath();
+        ctx.moveTo(x,0);
+        ctx.lineTo(x,height);
+        ctx.stroke();
+    }
+
+    ctx.restore();
+
+    ctx.save();
+
+    ctx.fillStyle = "#53657b";
+    ctx.font = "10px monospace";
+
+    const labels=[
+        "30Hz",
+        "100Hz",
+        "300Hz",
+        "1kHz",
+        "3kHz",
+        "6kHz",
+        "12kHz",
+        "20kHz"
+    ];
+
+    labels.forEach((label,i)=>{
+
+        const x =
+            width *
+            i /
+            (labels.length-1);
+
+        ctx.fillText(
+            label,
+            Math.min(x,width-42),
+            height-10
+        );
+    });
+
+    ctx.restore();
+}
+
+function drawSpectrum(
+    data,
+    bufferLength,
+    width,
+    height
+){
+
+    const bars = 72;
+    const gap = 3;
+
+    const barWidth =
+        width / bars - gap;
+
+    for(let i=0;i<bars;i++){
+
+        const position =
+            Math.pow(
+                i / bars,
+                1.7
+            );
+
+        const index =
+            Math.floor(
+                position *
+                bufferLength *
+                .8
+            );
+
+        let value =
+            data[index] || 0;
+
+        value =
+            Math.max(
+                0,
+                value - 10
+            );
+
+        const normalized =
+            value / 245;
+
+        const barHeight =
+            Math.pow(
+                normalized,
+                1.25
+            ) *
+            (height-45);
+
+        if(barHeight < 1) continue;
+
+        const x =
+            i *
+            (barWidth+gap);
+
+        const y =
+            height -
+            barHeight -
+            25;
+
+        const gradient =
+            ctx.createLinearGradient(
+                0,y,
+                0,height
+            );
+
+        gradient.addColorStop(
+            0,
+            "#7cf8ff"
+        );
+
+        gradient.addColorStop(
+            .5,
+            "#00d9ff"
+        );
+
+        gradient.addColorStop(
+            1,
+            "#007cff"
+        );
+
+        ctx.fillStyle = gradient;
+
+        roundRect(
+            ctx,
+            x,
+            y,
+            barWidth,
+            barHeight,
+            3
+        );
+
+        ctx.shadowBlur = 12;
+        ctx.shadowColor =
+            "rgba(0,220,255,.35)";
+
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+    }
+}
+
+function updateLevel(data){
+
+    let sum = 0;
+
+    const start =
+        Math.floor(data.length*.02);
+
+    const end =
+        Math.floor(data.length*.8);
+
+    for(
+        let i=start;
+        i<end;
+        i++
+    ){
+        sum +=
+            data[i] *
+            data[i];
+    }
+
+    const count =
+        Math.max(
+            1,
+            end-start
+        );
+
+    const rms =
+        Math.sqrt(
+            sum/count
+        );
+
+    let db;
+
+    if(rms < 1){
+
+        db = -Infinity;
+
+    }else{
+
+        db =
+            20 *
+            Math.log10(
+                rms/255
+            );
+    }
+
+    const display =
+        Math.max(
+            -60,
+            Math.min(
+                0,
+                db
+            )
+        );
+
+    if(!isFinite(db)){
+
+        levelNumber.textContent = "-∞";
+
+    }else{
+
+        levelNumber.textContent =
+            display.toFixed(1);
+    }
+
+    const percent =
+        (display+60)/60*100;
+
+    levelFill.style.height =
+        Math.max(
+            0,
+            Math.min(
+                100,
+                percent
+            )
+        )+"%";
+}
+
+function updateFPS(){
+
+    frameCount++;
+
+    const now =
+        performance.now();
+
+    if(now-fpsTime >= 1000){
+
+        fps.textContent =
+            frameCount+" FPS";
+
+        frameCount=0;
+        fpsTime=now;
+    }
+}
+
+function roundRect(
+    context,
+    x,
+    y,
+    width,
+    height,
+    radius
+){
+
+    radius =
+        Math.min(
+            radius,
+            width/2,
+            height/2
+        );
+
+    context.beginPath();
+
+    context.moveTo(
+        x+radius,
+        y
+    );
+
+    context.arcTo(
+        x+width,
+        y,
+        x+width,
+        y+height,
+        radius
+    );
+
+    context.arcTo(
+        x+width,
+        y+height,
+        x,
+        y+height,
+        radius
+    );
+
+    context.arcTo(
+        x,
+        y+height,
+        x,
+        y,
+        radius
+    );
+
+    context.arcTo(
+        x,
+        y,
+        x+width,
+        y,
+        radius
+    );
+
+    context.closePath();
+}
+
+function clearCanvas(){
+
+    const width =
+        canvas.clientWidth;
+
+    const height =
+        canvas.clientHeight;
+
+    ctx.clearRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+    drawGrid(
+        width,
+        height
+    );
+}
+
+startBtn.addEventListener(
+    "click",
+    startMicrophone
+);
+
+pauseBtn.addEventListener(
+    "click",
+    togglePause
+);
+
+stopBtn.addEventListener(
+    "click",
+    stopMicrophone
+);
+
+clearCanvas();
+
+</script>
+
+</body>
+</html>
