@@ -1,420 +1,609 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
 <title>Spectrum Analyzer</title>
 
 <style>
-*{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-body{
-    width:100vw;
-    height:100vh;
-    overflow:hidden;
-    background:#070b12;
-    color:#e8f0fa;
-    font-family:"Segoe UI","Noto Sans JP",sans-serif;
+html,
+body {
+    width: 100%;
+    height: 100%;
 }
 
-.app{
-    width:100%;
-    height:100%;
-    display:flex;
-    flex-direction:column;
+body {
+
+    background:
+        radial-gradient(
+            circle at top,
+            #182033 0%,
+            #080b12 55%,
+            #05070b 100%
+        );
+
+    color: #ffffff;
+
+    font-family:
+        Arial,
+        "Noto Sans JP",
+        sans-serif;
+
+    overflow: hidden;
 }
 
-header{
-    height:68px;
-    flex-shrink:0;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 22px;
-    background:#0b111b;
-    border-bottom:1px solid #1d2a3a;
+/* ==============================
+   全体
+============================== */
+
+.app {
+
+    width: 100vw;
+    height: 100vh;
+
+    display: flex;
+    flex-direction: column;
 }
 
-.logo{
-    display:flex;
-    align-items:center;
-    gap:12px;
+/* ==============================
+   ヘッダー
+============================== */
+
+header {
+
+    height: 70px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 28px;
+
+    border-bottom:
+        1px solid rgba(255,255,255,0.08);
+
+    background:
+        rgba(8,11,18,0.82);
+
+    backdrop-filter: blur(14px);
 }
 
-.logo-icon{
-    width:38px;
-    height:38px;
-    border-radius:10px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:linear-gradient(135deg,#00e5ff,#008cff);
-    color:#00141c;
-    font-size:20px;
-    font-weight:900;
+.logo {
+
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 2px;
 }
 
-.logo-text{
-    font-size:17px;
-    font-weight:800;
-    letter-spacing:2px;
+.logo span {
+    opacity: 0.55;
 }
 
-.status{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    color:#8293a8;
-    font-size:13px;
+.status {
+
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    font-size: 13px;
+    color: #aeb8c9;
 }
 
-.status-dot{
-    width:9px;
-    height:9px;
-    border-radius:50%;
-    background:#566577;
+.status-dot {
+
+    width: 9px;
+    height: 9px;
+
+    border-radius: 50%;
+
+    background: #626b7b;
+
+    box-shadow:
+        0 0 0 rgba(0,0,0,0);
 }
 
-.status-dot.active{
-    background:#39ff88;
-    box-shadow:0 0 12px #39ff88;
+.status-dot.active {
+
+    background: #39ff9b;
+
+    box-shadow:
+        0 0 14px rgba(57,255,155,0.8);
 }
 
-main{
-    flex:1;
-    min-height:0;
-    display:flex;
-    gap:18px;
-    padding:18px;
+/* ==============================
+   メイン
+============================== */
+
+main {
+
+    flex: 1;
+
+    min-height: 0;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        310px;
+
+    gap: 18px;
+
+    padding: 18px;
 }
 
-.visualizer{
-    flex:1;
-    min-width:0;
-    min-height:0;
-    display:flex;
-    flex-direction:column;
-    background:#0d131d;
-    border:1px solid #1d2a3a;
-    border-radius:18px;
-    overflow:hidden;
+/* ==============================
+   グラフ
+============================== */
+
+.visualizer {
+
+    min-width: 0;
+
+    position: relative;
+
+    border:
+        1px solid rgba(255,255,255,0.08);
+
+    border-radius: 18px;
+
+    background:
+        rgba(10,14,22,0.82);
+
+    overflow: hidden;
+
+    box-shadow:
+        0 20px 60px rgba(0,0,0,0.3);
 }
 
-.title{
-    height:52px;
-    flex-shrink:0;
-    padding:0 18px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    border-bottom:1px solid #1d2a3a;
+.visualizer-title {
+
+    position: absolute;
+
+    top: 18px;
+    left: 20px;
+
+    z-index: 2;
+
+    font-size: 12px;
+
+    color: #7e8ba0;
+
+    letter-spacing: 2px;
 }
 
-.title h2{
-    font-size:13px;
-    letter-spacing:1px;
+#spectrum {
+
+    width: 100%;
+    height: 100%;
+
+    display: block;
 }
 
-.title span{
-    color:#65778d;
-    font-size:11px;
+/* ==============================
+   サイド
+============================== */
+
+.sidebar {
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 14px;
+
+    min-height: 0;
 }
 
-.canvas-area{
-    flex:1;
-    min-height:0;
-    position:relative;
+.card {
+
+    border:
+        1px solid rgba(255,255,255,0.08);
+
+    border-radius: 16px;
+
+    background:
+        rgba(14,19,29,0.88);
+
+    padding: 20px;
+
+    box-shadow:
+        0 12px 30px rgba(0,0,0,0.18);
 }
 
-canvas{
-    width:100%;
-    height:100%;
-    display:block;
+.card-title {
+
+    color: #758197;
+
+    font-size: 11px;
+
+    letter-spacing: 2px;
+
+    margin-bottom: 10px;
 }
 
-.side{
-    width:285px;
-    flex-shrink:0;
-    display:flex;
-    flex-direction:column;
-    gap:18px;
+.big-number {
+
+    font-size: 38px;
+
+    font-weight: 800;
+
+    line-height: 1;
 }
 
-.card{
-    background:#0d131d;
-    border:1px solid #1d2a3a;
-    border-radius:18px;
-    padding:18px;
+.unit {
+
+    color: #758197;
+
+    font-size: 13px;
 }
 
-.card h3{
-    margin-bottom:15px;
-    color:#8293a8;
-    font-size:11px;
-    letter-spacing:1px;
+/* ==============================
+   情報
+============================== */
+
+.info {
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-.level-box{
-    display:flex;
-    align-items:center;
-    gap:15px;
+.info-row {
+
+    display: flex;
+    justify-content: space-between;
+
+    font-size: 13px;
+
+    color: #9ba6b8;
 }
 
-.level-scale{
-    width:20px;
-    height:145px;
-    position:relative;
-    overflow:hidden;
-    border:1px solid #26374c;
-    border-radius:10px;
-    background:#080d14;
+.info-row strong {
+
+    color: #ffffff;
 }
 
-.level-fill{
-    position:absolute;
-    left:0;
-    bottom:0;
-    width:100%;
-    height:0%;
-    background:linear-gradient(
-        to top,
-        #19e68c,
-        #19e68c 60%,
-        #ffd447 78%,
-        #ff5277
-    );
+/* ==============================
+   ボタン
+============================== */
+
+.controls {
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 9px;
 }
 
-.level-number{
-    font-size:34px;
-    font-weight:800;
+button {
+
+    width: 100%;
+
+    border: 0;
+
+    border-radius: 10px;
+
+    padding: 13px 12px;
+
+    color: white;
+
+    background: #20293a;
+
+    cursor: pointer;
+
+    font-size: 13px;
+
+    transition:
+        transform 0.15s,
+        background 0.15s;
 }
 
-.level-unit{
-    color:#71839a;
-    font-size:12px;
+button:hover {
+
+    background: #2b374d;
+
+    transform: translateY(-1px);
 }
 
-.level-label{
-    margin-top:12px;
-    color:#71839a;
-    font-size:10px;
+button:active {
+
+    transform: translateY(0);
 }
 
-.controls{
-    display:flex;
-    flex-direction:column;
-    gap:10px;
+button.start {
+
+    background: #174e3a;
 }
 
-button{
-    width:100%;
-    padding:13px;
-    border:0;
-    border-radius:10px;
-    cursor:pointer;
-    font-size:13px;
-    font-weight:700;
-    transition:.15s;
+button.start:hover {
+
+    background: #1d6549;
 }
 
-button:hover{
-    transform:translateY(-1px);
+/* ==============================
+   フッター
+============================== */
+
+.footer {
+
+    margin-top: auto;
+
+    color: #586476;
+
+    font-size: 11px;
+
+    text-align: center;
+
+    padding-top: 3px;
 }
 
-button:disabled{
-    opacity:.4;
-    cursor:not-allowed;
-    transform:none;
-}
+/* ==============================
+   レスポンシブ
+============================== */
 
-.primary{
-    background:linear-gradient(135deg,#00e5ff,#008cff);
-    color:#00141c;
-}
+@media (max-width: 850px) {
 
-.secondary{
-    background:#182333;
-    border:1px solid #26374c;
-    color:white;
-}
-
-.stop{
-    background:#24121a;
-    border:1px solid #653044;
-    color:#ff7694;
-}
-
-.info{
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-}
-
-.info-row{
-    display:flex;
-    justify-content:space-between;
-    font-size:12px;
-}
-
-.info-row span:first-child{
-    color:#71839a;
-}
-
-.info-row span:last-child{
-    font-family:monospace;
-}
-
-footer{
-    height:30px;
-    flex-shrink:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:#4f6075;
-    font-size:10px;
-}
-
-@media(max-width:800px){
-    body{
-        overflow:auto;
+    body {
+        overflow: auto;
     }
 
-    main{
-        flex-direction:column;
+    .app {
+        min-height: 100vh;
+        height: auto;
     }
 
-    .side{
-        width:100%;
+    main {
+
+        grid-template-columns: 1fr;
+
+        height: auto;
     }
 
-    .visualizer{
-        min-height:55vh;
+    .visualizer {
+
+        height: 55vh;
+        min-height: 400px;
+    }
+
+    .sidebar {
+
+        display: grid;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .controls {
+        grid-column: 1 / -1;
+    }
+
+    .footer {
+        padding-bottom: 10px;
     }
 }
+
+@media (max-width: 520px) {
+
+    header {
+        padding: 0 15px;
+    }
+
+    .logo {
+        font-size: 17px;
+    }
+
+    main {
+        padding: 10px;
+    }
+
+    .sidebar {
+        grid-template-columns: 1fr;
+    }
+
+    .controls {
+        grid-column: auto;
+    }
+}
+
 </style>
+
 </head>
 
 <body>
 
 <div class="app">
 
-<header>
-    <div class="logo">
-        <div class="logo-icon">〽</div>
-        <div class="logo-text">SPECTRUM ANALYZER</div>
-    </div>
+    <header>
 
-    <div class="status">
-        <div id="statusDot" class="status-dot"></div>
-        <span id="statusText">停止中</span>
-    </div>
-</header>
-
-<main>
-
-<section class="visualizer">
-
-    <div class="title">
-        <h2>REALTIME FREQUENCY</h2>
-        <span id="fps">-- FPS</span>
-    </div>
-
-    <div class="canvas-area">
-        <canvas id="spectrum"></canvas>
-    </div>
-
-</section>
-
-<aside class="side">
-
-<div class="card">
-
-    <h3>AUDIO LEVEL</h3>
-
-    <div class="level-box">
-
-        <div class="level-scale">
-            <div id="levelFill" class="level-fill"></div>
+        <div class="logo">
+            〽 SPECTRUM <span>ANALYZER</span>
         </div>
 
-        <div>
-            <div id="levelNumber" class="level-number">-∞</div>
-            <div class="level-unit">dB</div>
-            <div class="level-label">INPUT LEVEL</div>
+        <div class="status">
+
+            <div
+                id="statusDot"
+                class="status-dot"
+            ></div>
+
+            <span id="statusText">
+                Pythonに接続中...
+            </span>
+
         </div>
 
-    </div>
+    </header>
+
+
+    <main>
+
+        <!-- グラフ -->
+
+        <section class="visualizer">
+
+            <div class="visualizer-title">
+                REALTIME FREQUENCY
+            </div>
+
+            <canvas id="spectrum"></canvas>
+
+        </section>
+
+
+        <!-- サイドバー -->
+
+        <aside class="sidebar">
+
+
+            <!-- 音量 -->
+
+            <div class="card">
+
+                <div class="card-title">
+                    AUDIO LEVEL
+                </div>
+
+                <div>
+                    <span
+                        id="level"
+                        class="big-number"
+                    >
+                        -60
+                    </span>
+
+                    <span class="unit">
+                        dB
+                    </span>
+                </div>
+
+            </div>
+
+
+            <!-- ピーク -->
+
+            <div class="card">
+
+                <div class="card-title">
+                    PEAK FREQUENCY
+                </div>
+
+                <div>
+
+                    <span
+                        id="frequency"
+                        class="big-number"
+                    >
+                        0
+                    </span>
+
+                    <span class="unit">
+                        Hz
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- 情報 -->
+
+            <div class="card">
+
+                <div class="card-title">
+                    AUDIO INFO
+                </div>
+
+                <div class="info">
+
+                    <div class="info-row">
+                        <span>解析方式</span>
+                        <strong>FFT</strong>
+                    </div>
+
+                    <div class="info-row">
+                        <span>解析側</span>
+                        <strong>Python</strong>
+                    </div>
+
+                    <div class="info-row">
+                        <span>サンプルレート</span>
+                        <strong id="sampleRate">
+                            44100 Hz
+                        </strong>
+                    </div>
+
+                    <div class="info-row">
+                        <span>FFTサイズ</span>
+                        <strong>
+                            4096
+                        </strong>
+                    </div>
+
+                    <div class="info-row">
+                        <span>接続</span>
+                        <strong id="connection">
+                            接続中
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- 操作 -->
+
+            <div class="card controls">
+
+                <div class="card-title">
+                    CONTROL
+                </div>
+
+                <button
+                    class="start"
+                    onclick="startAnalyzer()"
+                >
+                    🎙 解析を開始
+                </button>
+
+                <button
+                    onclick="clearGraph()"
+                >
+                    ✕ グラフをクリア
+                </button>
+
+            </div>
+
+
+            <div class="footer">
+                Python FFT Audio Analyzer
+            </div>
+
+        </aside>
+
+    </main>
 
 </div>
 
-<div class="card">
-
-    <h3>CONTROL</h3>
-
-    <div class="controls">
-
-        <button id="startBtn" class="primary">
-            🎙 マイクを開始
-        </button>
-
-        <button id="pauseBtn" class="secondary" disabled>
-            ⏸ 一時停止
-        </button>
-
-        <button id="stopBtn" class="stop" disabled>
-            ■ 停止
-        </button>
-
-    </div>
-
-</div>
-
-<div class="card">
-
-    <h3>AUDIO INFO</h3>
-
-    <div class="info">
-
-        <div class="info-row">
-            <span>Sample Rate</span>
-            <span id="sampleRate">--</span>
-        </div>
-
-        <div class="info-row">
-            <span>FFT Size</span>
-            <span>4096</span>
-        </div>
-
-        <div class="info-row">
-            <span>Frequency</span>
-            <span>20Hz - 20kHz</span>
-        </div>
-
-        <div class="info-row">
-            <span>Source</span>
-            <span>Microphone</span>
-        </div>
-
-    </div>
-
-</div>
-
-</aside>
-
-</main>
-
-<footer>
-    Spectrum Analyzer • Web Audio API
-</footer>
-
-</div>
 
 <script>
+
+/* ==============================
+   Canvas
+============================== */
 
 const canvas =
     document.getElementById("spectrum");
@@ -422,45 +611,16 @@ const canvas =
 const ctx =
     canvas.getContext("2d");
 
-const startBtn =
-    document.getElementById("startBtn");
+let bars = new Array(128).fill(0);
 
-const pauseBtn =
-    document.getElementById("pauseBtn");
+let connected = false;
 
-const stopBtn =
-    document.getElementById("stopBtn");
 
-const statusDot =
-    document.getElementById("statusDot");
+/* ==============================
+   Canvasサイズ
+============================== */
 
-const statusText =
-    document.getElementById("statusText");
-
-const levelFill =
-    document.getElementById("levelFill");
-
-const levelNumber =
-    document.getElementById("levelNumber");
-
-const sampleRate =
-    document.getElementById("sampleRate");
-
-const fps =
-    document.getElementById("fps");
-
-let audioContext = null;
-let analyser = null;
-let microphone = null;
-let stream = null;
-
-let animationId = null;
-let paused = false;
-
-let frameCount = 0;
-let fpsTime = performance.now();
-
-function resizeCanvas(){
+function resizeCanvas() {
 
     const rect =
         canvas.getBoundingClientRect();
@@ -475,7 +635,12 @@ function resizeCanvas(){
         rect.height * dpr;
 
     ctx.setTransform(
-        dpr,0,0,dpr,0,0
+        dpr,
+        0,
+        0,
+        dpr,
+        0,
+        0
     );
 }
 
@@ -486,154 +651,18 @@ window.addEventListener(
 
 resizeCanvas();
 
-async function startMicrophone(){
 
-    try{
+/* ==============================
+   グラフ描画
+============================== */
 
-        if(
-            !navigator.mediaDevices ||
-            !navigator.mediaDevices.getUserMedia
-        ){
-            alert(
-                "このブラウザではマイク機能を使用できません。"
-            );
-            return;
-        }
-
-        stream =
-            await navigator.mediaDevices.getUserMedia({
-                audio:{
-                    echoCancellation:false,
-                    noiseSuppression:false,
-                    autoGainControl:false
-                }
-            });
-
-        audioContext =
-            new (
-                window.AudioContext ||
-                window.webkitAudioContext
-            )();
-
-        microphone =
-            audioContext.createMediaStreamSource(
-                stream
-            );
-
-        analyser =
-            audioContext.createAnalyser();
-
-        analyser.fftSize = 4096;
-        analyser.smoothingTimeConstant = 0.72;
-
-        microphone.connect(analyser);
-
-        sampleRate.textContent =
-            audioContext.sampleRate + " Hz";
-
-        statusDot.classList.add("active");
-        statusText.textContent = "録音中";
-
-        startBtn.disabled = true;
-        pauseBtn.disabled = false;
-        stopBtn.disabled = false;
-
-        paused = false;
-
-        draw();
-
-    }catch(error){
-
-        console.error(error);
-
-        alert(
-            "マイクへのアクセスが許可されませんでした。"
-        );
-    }
-}
-
-function stopMicrophone(){
-
-    if(animationId){
-        cancelAnimationFrame(animationId);
-        animationId = null;
-    }
-
-    if(stream){
-
-        stream.getTracks().forEach(
-            track => track.stop()
-        );
-
-        stream = null;
-    }
-
-    if(audioContext){
-
-        audioContext.close();
-        audioContext = null;
-    }
-
-    analyser = null;
-    microphone = null;
-
-    paused = false;
-
-    statusDot.classList.remove("active");
-    statusText.textContent = "停止中";
-
-    startBtn.disabled = false;
-    pauseBtn.disabled = true;
-    stopBtn.disabled = true;
-
-    pauseBtn.textContent = "⏸ 一時停止";
-
-    levelFill.style.height = "0%";
-    levelNumber.textContent = "-∞";
-
-    clearCanvas();
-}
-
-function togglePause(){
-
-    if(!analyser) return;
-
-    paused = !paused;
-
-    if(paused){
-
-        pauseBtn.textContent = "▶ 再開";
-        statusText.textContent = "一時停止";
-
-    }else{
-
-        pauseBtn.textContent = "⏸ 一時停止";
-        statusText.textContent = "録音中";
-
-        draw();
-    }
-}
-
-function draw(){
-
-    if(!analyser || paused) return;
-
-    animationId =
-        requestAnimationFrame(draw);
+function drawSpectrum() {
 
     const width =
         canvas.clientWidth;
 
     const height =
         canvas.clientHeight;
-
-    const bufferLength =
-        analyser.frequencyBinCount;
-
-    const data =
-        new Uint8Array(bufferLength);
-
-    analyser.getByteFrequencyData(data);
 
     ctx.clearRect(
         0,
@@ -642,377 +671,370 @@ function draw(){
         height
     );
 
-    drawGrid(width,height);
 
-    drawSpectrum(
-        data,
-        bufferLength,
+    /* 背景 */
+
+    ctx.fillStyle =
+        "#090d15";
+
+    ctx.fillRect(
+        0,
+        0,
         width,
         height
     );
 
-    updateLevel(data);
 
-    updateFPS();
-}
-
-function drawGrid(width,height){
-
-    ctx.save();
+    /* グリッド */
 
     ctx.strokeStyle =
-        "rgba(255,255,255,.06)";
+        "rgba(255,255,255,0.055)";
 
     ctx.lineWidth = 1;
 
-    for(let i=1;i<6;i++){
+
+    for (
+        let i = 0;
+        i < 8;
+        i++
+    ) {
 
         const y =
-            height -
-            height / 6 * i;
+            70 +
+            ((height - 110) / 8) * i;
 
         ctx.beginPath();
-        ctx.moveTo(0,y);
-        ctx.lineTo(width,y);
+
+        ctx.moveTo(
+            20,
+            y
+        );
+
+        ctx.lineTo(
+            width - 20,
+            y
+        );
+
         ctx.stroke();
     }
 
-    for(let i=1;i<8;i++){
 
-        const x =
-            width / 8 * i;
+    /* 周波数ラベル */
 
-        ctx.beginPath();
-        ctx.moveTo(x,0);
-        ctx.lineTo(x,height);
-        ctx.stroke();
-    }
-
-    ctx.restore();
-
-    ctx.save();
-
-    ctx.fillStyle = "#53657b";
-    ctx.font = "10px monospace";
-
-    const labels=[
+    const labels = [
         "30Hz",
         "100Hz",
         "300Hz",
         "1kHz",
         "3kHz",
-        "6kHz",
-        "12kHz",
+        "10kHz",
         "20kHz"
     ];
 
-    labels.forEach((label,i)=>{
+    ctx.font =
+        "11px Arial";
 
-        const x =
-            width *
-            i /
-            (labels.length-1);
+    ctx.fillStyle =
+        "#596579";
 
-        ctx.fillText(
-            label,
-            Math.min(x,width-42),
-            height-10
-        );
-    });
 
-    ctx.restore();
-}
+    labels.forEach(
+        (label, index) => {
 
-function drawSpectrum(
-    data,
-    bufferLength,
-    width,
-    height
-){
+            const x =
+                20 +
+                ((width - 40) /
+                (labels.length - 1))
+                * index;
 
-    const bars = 72;
-    const gap = 3;
+            ctx.fillText(
+                label,
+                x,
+                height - 22
+            );
+        }
+    );
+
+
+    /* バー */
+
+    const count =
+        bars.length;
+
+    const gap = 2;
 
     const barWidth =
-        width / bars - gap;
+        Math.max(
+            1,
+            (width - 40) / count - gap
+        );
 
-    for(let i=0;i<bars;i++){
 
-        const position =
-            Math.pow(
-                i / bars,
-                1.7
-            );
+    for (
+        let i = 0;
+        i < count;
+        i++
+    ) {
 
-        const index =
-            Math.floor(
-                position *
-                bufferLength *
-                .8
-            );
+        const value =
+            bars[i] || 0;
 
-        let value =
-            data[index] || 0;
-
-        value =
-            Math.max(
-                0,
-                value - 10
-            );
-
-        const normalized =
-            value / 245;
+        const maxHeight =
+            height - 130;
 
         const barHeight =
-            Math.pow(
-                normalized,
-                1.25
-            ) *
-            (height-45);
-
-        if(barHeight < 1) continue;
+            Math.max(
+                2,
+                (value / 100) *
+                maxHeight
+            );
 
         const x =
+            20 +
             i *
-            (barWidth+gap);
+            ((width - 40) / count);
 
         const y =
             height -
-            barHeight -
-            25;
+            50 -
+            barHeight;
+
+
+        /* グラデーション */
 
         const gradient =
             ctx.createLinearGradient(
-                0,y,
-                0,height
+                0,
+                y,
+                0,
+                height - 50
             );
 
         gradient.addColorStop(
             0,
-            "#7cf8ff"
+            "#ffffff"
         );
 
         gradient.addColorStop(
-            .5,
-            "#00d9ff"
+            0.35,
+            "#72e5ff"
         );
 
         gradient.addColorStop(
             1,
-            "#007cff"
+            "#4169ff"
         );
 
-        ctx.fillStyle = gradient;
+        ctx.fillStyle =
+            gradient;
 
-        roundRect(
-            ctx,
+
+        ctx.fillRect(
             x,
             y,
             barWidth,
-            barHeight,
-            3
+            barHeight
         );
-
-        ctx.shadowBlur = 12;
-        ctx.shadowColor =
-            "rgba(0,220,255,.35)";
-
-        ctx.fill();
-
-        ctx.shadowBlur = 0;
     }
+
+
+    requestAnimationFrame(
+        drawSpectrum
+    );
 }
 
-function updateLevel(data){
+drawSpectrum();
 
-    let sum = 0;
 
-    const start =
-        Math.floor(data.length*.02);
+/* ==============================
+   Python API
+============================== */
 
-    const end =
-        Math.floor(data.length*.8);
+async function updateData() {
 
-    for(
-        let i=start;
-        i<end;
-        i++
-    ){
-        sum +=
-            data[i] *
-            data[i];
-    }
+    try {
 
-    const count =
-        Math.max(
-            1,
-            end-start
-        );
-
-    const rms =
-        Math.sqrt(
-            sum/count
-        );
-
-    let db;
-
-    if(rms < 1){
-
-        db = -Infinity;
-
-    }else{
-
-        db =
-            20 *
-            Math.log10(
-                rms/255
+        const response =
+            await fetch(
+                "/api/spectrum?t=" +
+                Date.now()
             );
-    }
 
-    const display =
-        Math.max(
-            -60,
-            Math.min(
-                0,
-                db
+        if (!response.ok) {
+            throw new Error(
+                "Server error"
+            );
+        }
+
+        const data =
+            await response.json();
+
+
+        connected = true;
+
+
+        /* スペクトラム */
+
+        if (
+            Array.isArray(
+                data.spectrum
             )
-        );
+        ) {
 
-    if(!isFinite(db)){
+            bars =
+                data.spectrum;
+        }
 
-        levelNumber.textContent = "-∞";
 
-    }else{
+        /* 音量 */
 
-        levelNumber.textContent =
-            display.toFixed(1);
-    }
+        document
+            .getElementById("level")
+            .textContent =
+            Number(
+                data.level
+            ).toFixed(1);
 
-    const percent =
-        (display+60)/60*100;
 
-    levelFill.style.height =
-        Math.max(
-            0,
-            Math.min(
-                100,
-                percent
+        /* 周波数 */
+
+        let frequency =
+            Number(
+                data.frequency
+            );
+
+
+        if (frequency >= 1000) {
+
+            document
+                .getElementById(
+                    "frequency"
+                )
+                .textContent =
+                (frequency / 1000)
+                .toFixed(2) + "k";
+
+        } else {
+
+            document
+                .getElementById(
+                    "frequency"
+                )
+                .textContent =
+                Math.round(
+                    frequency
+                );
+        }
+
+
+        /* サンプルレート */
+
+        document
+            .getElementById(
+                "sampleRate"
             )
-        )+"%";
-}
+            .textContent =
+            data.sample_rate +
+            " Hz";
 
-function updateFPS(){
 
-    frameCount++;
+        /* 接続状態 */
 
-    const now =
-        performance.now();
+        document
+            .getElementById(
+                "connection"
+            )
+            .textContent =
+            "Python接続中";
 
-    if(now-fpsTime >= 1000){
 
-        fps.textContent =
-            frameCount+" FPS";
+        document
+            .getElementById(
+                "statusText"
+            )
+            .textContent =
+            "Python解析中";
 
-        frameCount=0;
-        fpsTime=now;
+
+        document
+            .getElementById(
+                "statusDot"
+            )
+            .classList
+            .add("active");
+
+    }
+
+    catch (error) {
+
+        connected = false;
+
+        document
+            .getElementById(
+                "connection"
+            )
+            .textContent =
+            "未接続";
+
+        document
+            .getElementById(
+                "statusText"
+            )
+            .textContent =
+            "Python未接続";
+
+        document
+            .getElementById(
+                "statusDot"
+            )
+            .classList
+            .remove("active");
     }
 }
 
-function roundRect(
-    context,
-    x,
-    y,
-    width,
-    height,
-    radius
-){
 
-    radius =
-        Math.min(
-            radius,
-            width/2,
-            height/2
-        );
+/* ==============================
+   定期取得
+============================== */
 
-    context.beginPath();
+setInterval(
+    updateData,
+    50
+);
 
-    context.moveTo(
-        x+radius,
-        y
-    );
+updateData();
 
-    context.arcTo(
-        x+width,
-        y,
-        x+width,
-        y+height,
-        radius
-    );
 
-    context.arcTo(
-        x+width,
-        y+height,
-        x,
-        y+height,
-        radius
-    );
+/* ==============================
+   解析開始
+============================== */
 
-    context.arcTo(
-        x,
-        y+height,
-        x,
-        y,
-        radius
-    );
+function startAnalyzer() {
 
-    context.arcTo(
-        x,
-        y,
-        x+width,
-        y,
-        radius
-    );
+    updateData();
 
-    context.closePath();
 }
 
-function clearCanvas(){
 
-    const width =
-        canvas.clientWidth;
+/* ==============================
+   グラフクリア
+============================== */
 
-    const height =
-        canvas.clientHeight;
+function clearGraph() {
 
-    ctx.clearRect(
-        0,
-        0,
-        width,
-        height
-    );
+    bars =
+        new Array(128).fill(0);
 
-    drawGrid(
-        width,
-        height
-    );
+    document
+        .getElementById("level")
+        .textContent =
+        "-60";
+
+    document
+        .getElementById("frequency")
+        .textContent =
+        "0";
 }
-
-startBtn.addEventListener(
-    "click",
-    startMicrophone
-);
-
-pauseBtn.addEventListener(
-    "click",
-    togglePause
-);
-
-stopBtn.addEventListener(
-    "click",
-    stopMicrophone
-);
-
-clearCanvas();
 
 </script>
 
